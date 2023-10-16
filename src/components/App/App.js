@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { nanoid } from 'nanoid';
 import Notiflix from 'notiflix';
 import { ContactsForm } from 'components/ContactsForm';
@@ -9,21 +9,19 @@ import { Container, MainTitle, Title } from './App.syled';
 export function App() {
   const [contacts, setContacts] = useState([]);
   const [filter, setFilter] = useState('');
-  const [isFirstRender, setIsFirstRender] = useState(true);
+  const isFirstRender = useRef(true);
 
   useEffect(() => {
     const contactsFromLS = localStorage.getItem('contacts');
-    
-    if (contactsFromLS) {
-      setContacts([...JSON.parse(contactsFromLS)]);
-    }
+
+    setContacts(() => (contactsFromLS ? JSON.parse(contactsFromLS) : []));
   }, []);
 
   useEffect(() => {
-    if (isFirstRender) {
-      setIsFirstRender(false);
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
       return;
-    }
+    };
 
     localStorage.setItem('contacts', JSON.stringify(contacts));
   }, [contacts, isFirstRender]);
@@ -42,7 +40,7 @@ export function App() {
       name,
       number,
     };
-    
+
     setContacts([newContact, ...contacts]);
 
     resetForm();
